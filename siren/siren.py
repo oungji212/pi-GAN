@@ -93,7 +93,7 @@ class FiLMLayer(nn.Module):
         phase_shift = phase_shift.unsqueeze(1).expand_as(x)
         return torch.sin(freq * x + phase_shift)
 
-
+# output density & color 
 class TALLSIREN(nn.Module):
     """Primary SIREN  architecture used in pi-GAN generators."""
 
@@ -105,6 +105,7 @@ class TALLSIREN(nn.Module):
         self.hidden_dim = hidden_dim
         self.output_dim = output_dim
 
+        # 기본적으로 8-fully connected network
         self.network = nn.ModuleList([
             FiLMLayer(input_dim, hidden_dim),
             FiLMLayer(hidden_dim, hidden_dim),
@@ -115,8 +116,9 @@ class TALLSIREN(nn.Module):
             FiLMLayer(hidden_dim, hidden_dim),
             FiLMLayer(hidden_dim, hidden_dim),
         ])
+        # final density 출력 구조
         self.final_layer = nn.Linear(hidden_dim, 1)
-
+        # ray direction(+3)을 추가한 final color(RGB) 출력 구조
         self.color_layer_sine = FiLMLayer(hidden_dim + 3, hidden_dim)
         self.color_layer_linear = nn.Sequential(nn.Linear(hidden_dim, 3), nn.Sigmoid())
 
@@ -137,7 +139,7 @@ class TALLSIREN(nn.Module):
 
         x = input
 
-        for index, layer in enumerate(self.network):
+        for index, layer in enumerate(self.network): # 8-fully connected network
             start = index * self.hidden_dim
             end = (index+1) * self.hidden_dim
             x = layer(x, frequencies[..., start:end], phase_shifts[..., start:end])
