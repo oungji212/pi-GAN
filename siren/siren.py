@@ -142,7 +142,7 @@ class TALLSIREN(nn.Module):
         for index, layer in enumerate(self.network): # 8-fully connected network
             start = index * self.hidden_dim
             end = (index+1) * self.hidden_dim
-            x = layer(x, frequencies[..., start:end], phase_shifts[..., start:end])
+            x = layer(x, frequencies[..., start:end], phase_shifts[..., start:end]) # 해당 부분의 FiLMLayer(hidden_dim, hidden_dim)
 
         sigma = self.final_layer(x)
         rbg = self.color_layer_sine(torch.cat([ray_directions, x], dim=-1), frequencies[..., -self.hidden_dim:], phase_shifts[..., -self.hidden_dim:])
